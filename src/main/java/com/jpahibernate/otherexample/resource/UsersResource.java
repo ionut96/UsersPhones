@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -54,15 +53,15 @@ public class UsersResource {
     public ResponseEntity addUser(@RequestBody Users user, HttpServletResponse response) {
 
         if (user.getName().isEmpty())
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User name is mandatory");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User name is mandatory POST");
 
         if (usersRepos.findAll().stream()
                 .anyMatch(u -> user.getName().toLowerCase().equals(u.getName().toLowerCase())))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name " + user.getName() + " is already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name " + user.getName() + " is already taken POST");
 
         usersRepos.save(user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("User " + user.getName() + " was saved");
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -72,14 +71,18 @@ public class UsersResource {
     }
 
     @PutMapping("/id/{id}")
-    public ResponseEntity updateFullUser(@PathVariable("id") @NotNull final Integer id, @RequestBody Users user) {
+    public ResponseEntity updateFullUser(@PathVariable("id") final Integer id, @RequestBody Users user) {
 
         if (user.getName().isEmpty())
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(user);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User name is mandatory PUT");
+
 
         if (usersRepos.findAll().stream()
-                .anyMatch(u -> user.getName().toLowerCase().equals(u.getName().toLowerCase())))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name " + user.getName() + " is already taken");
+                .findFirst()
+                .filter(u -> user.getName().toLowerCase().equals(u.getName().toLowerCase()))
+                .filter(u -> u.getId() != id)
+                .isPresent())
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name " + user.getName() + " is already taken PUT");
 
         usersRepos.save(
                 usersRepos
@@ -88,24 +91,24 @@ public class UsersResource {
                         .setJob(user.getJob())
                         .setSalary(user.getSalary()));
 
-        return ResponseEntity.status(HttpStatus.OK).body("Change user with id " + id + " by PUT in to" + user);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    @PostMapping("/id/{id}")
-    public String updateByPost(@PathVariable("id") final Integer id, @RequestBody @NotNull Users user) {
-
-        if (!getUserByName(user.getName()).isEmpty()) {
-            return user.getName() + " username already exist";
-        }
-        usersRepos.save(
-                usersRepos
-                        .getOne(id)
-                        .setName(user.getName())
-                        .setJob(user.getJob())
-                        .setSalary(user.getSalary()));
-
-        return "Change user with id " + id + " by POST";
-    }
+//    @PostMapping("/id/{id}")
+//    public String updateByPost(@PathVariable("id") final Integer id, @RequestBody @NotNull Users user) {
+//
+//        if (!getUserByName(user.getName()).isEmpty()) {
+//            return user.getName() + " username already exist";
+//        }
+//        usersRepos.save(
+//                usersRepos
+//                        .getOne(id)
+//                        .setName(user.getName())
+//                        .setJob(user.getJob())
+//                        .setSalary(user.getSalary()));
+//
+//        return "Change user with id " + id + " by POST";
+//    }
 
 
 //    @GetMapping("/update/{brand}")
