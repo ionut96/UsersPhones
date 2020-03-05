@@ -1,14 +1,14 @@
 package com.jpahibernate.otherexample.resource;
 
-import com.fasterxml.classmate.AnnotationConfiguration;
 import com.jpahibernate.otherexample.model.Users;
 import com.jpahibernate.otherexample.repository.UsersRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.SessionFactoryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -49,10 +49,20 @@ public class UsersResource {
         return usersRepos.save(user);
     }
 
+
     @PostMapping("/addUser")
-    public String addUser(@RequestBody Users users) {
-        usersRepos.save(users);
-        return "User " + users.getName() + " was saved";
+    public ResponseEntity addUser(@RequestBody Users user, HttpServletResponse response) {
+
+        if (user.getName().isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User name is mandatory");
+
+        if (usersRepos.findAll().stream()
+                .anyMatch(u -> user.getName().toLowerCase().equals(u.getName().toLowerCase())))
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name " + user.getName() + " is already taken");
+
+        usersRepos.save(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("User " + user.getName() + " was saved");
     }
 
     @DeleteMapping("/delete/{id}")
@@ -62,24 +72,38 @@ public class UsersResource {
     }
 
     @PutMapping("/id/{id}")
-    public String updateFullUser(@PathVariable("id") final Integer id, @RequestBody Users user) {
+    public ResponseEntity updateFullUser(@PathVariable("id") @NotNull final Integer id, @RequestBody Users user) {
+
+        if (user.getName().isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(user);
+
+        if (usersRepos.findAll().stream()
+                .anyMatch(u -> user.getName().toLowerCase().equals(u.getName().toLowerCase())))
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name " + user.getName() + " is already taken");
+
         usersRepos.save(
                 usersRepos
                         .getOne(id)
                         .setName(user.getName())
                         .setJob(user.getJob())
                         .setSalary(user.getSalary()));
-        return "Change user with id " + id + " by PUT";
+
+        return ResponseEntity.status(HttpStatus.OK).body("Change user with id " + id + " by PUT in to" + user);
     }
 
     @PostMapping("/id/{id}")
-    public String updateByPost(@PathVariable("id") final Integer id, @RequestBody Users user) {
+    public String updateByPost(@PathVariable("id") final Integer id, @RequestBody @NotNull Users user) {
+
+        if (!getUserByName(user.getName()).isEmpty()) {
+            return user.getName() + " username already exist";
+        }
         usersRepos.save(
                 usersRepos
                         .getOne(id)
                         .setName(user.getName())
                         .setJob(user.getJob())
                         .setSalary(user.getSalary()));
+
         return "Change user with id " + id + " by POST";
     }
 

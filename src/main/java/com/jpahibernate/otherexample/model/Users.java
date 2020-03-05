@@ -16,7 +16,6 @@ public class Users {
     private Integer idUser;
     @Column(name = "name")
     private String name;
-    @Column(name = "job")
     private String job;
     @Column(name = "salary")
     private Integer salary;
