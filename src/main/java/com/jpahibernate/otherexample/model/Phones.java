@@ -17,21 +17,6 @@ public class Phones {
     private String brand;
     @Column(name = "model")
     private String model;
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "idPhone",referencedColumnName = "id")
-//    private Users users;
-//
-//    public Phones() {
-//
-//    }
-//
-//    public Users getUsers() {
-//        return users;
-//    }
-//
-//    public void setUsers(Users users) {
-//        this.users = users;
-//    }
 
     public Integer getId() {
         return id;

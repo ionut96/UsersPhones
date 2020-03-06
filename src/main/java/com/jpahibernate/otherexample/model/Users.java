@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "Users", catalog = "TestProject")
@@ -19,21 +20,10 @@ public class Users {
     private String job;
     @Column(name = "salary")
     private Integer salary;
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "idUser",referencedColumnName = "id")
-//    private Phones phone;
-//
-//    public Phones getPhone() {
-//        return phone;
-//    }
-//
-//    public void setPhone(Phones phone) {
-//        this.phone = phone;
-//    }
+    private List<Phones> phones;
 
     public Users(){
     }
-
 
     public Users(@JsonProperty("name") String name,
                  @JsonProperty("job") String job,

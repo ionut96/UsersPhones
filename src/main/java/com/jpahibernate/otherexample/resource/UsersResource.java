@@ -94,8 +94,8 @@ public class UsersResource {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-//    @PostMapping("/id/{id}")
-//    public String updateByPost(@PathVariable("id") final Integer id, @RequestBody @NotNull Users user) {
+//    @PostMapping("/id/{id}/addPhone")
+//    public String updateByPost(@PathVariable("id") final Integer id, @RequestBody Phones phone) {
 //
 //        if (!getUserByName(user.getName()).isEmpty()) {
 //            return user.getName() + " username already exist";
